@@ -333,6 +333,165 @@ type NowResponse = {
   alternatives: NowCard[];
 };
 
+const CITY_KNOWLEDGE_NOW: Record<string, NowResponse> = {
+  jaipur: {
+    headline: "Sunset & Chai at Nahargarh Fort Viewpoint",
+    context_note: "Golden hour timing for Jaipur's finest rooftop and fort views.",
+    primary: {
+      name: "Nahargarh Fort Sunset Point & Padao Open Air",
+      category: "viewpoint",
+      pitch: "Panoramic views of the Pink City skyline at sunset from the Aravalli hills.",
+      why_now: "Cool evening breeze and breathtaking golden hour light over Jaipur.",
+      distance_km: 4.5,
+      duration_min: 90,
+      approx_cost: 150,
+      best_time: "5:00 PM - 7:30 PM",
+      tags: ["sunset", "viewpoint", "fort"],
+      scores: { match: 95, crowd: 70, budget: 90, distance: 80, weather: 95, overall: 92 },
+    },
+    alternatives: [
+      {
+        name: "Hawa Mahal Courtyard & Wind Palace Walk",
+        category: "culture",
+        pitch: "Iconic 953-window honeycombed facade with bustling street tea stalls.",
+        why_now: "Bustling street energy and great photo opportunities.",
+        distance_km: 2.0,
+        duration_min: 45,
+        approx_cost: 50,
+        best_time: "Now",
+        tags: ["heritage", "photo", "culture"],
+        scores: { match: 90, crowd: 65, budget: 95, distance: 90, weather: 90, overall: 88 },
+      },
+      {
+        name: "Tapri Central Rooftop Tea House",
+        category: "cafe",
+        pitch: "Rooftop tea house overlooking Central Park with kulhad chai and vada pav.",
+        why_now: "Relaxed rooftop seating with green park views.",
+        distance_km: 1.5,
+        duration_min: 60,
+        approx_cost: 250,
+        best_time: "Now",
+        tags: ["cafe", "chai", "rooftop"],
+        scores: { match: 88, crowd: 75, budget: 90, distance: 95, weather: 90, overall: 87 },
+      },
+      {
+        name: "Johri Bazaar Street Food & Rawat Misthan Bhandar",
+        category: "food",
+        pitch: "Famous crispy Pyaz Kachori and sweet Ghevar from Jaipur's top halwai.",
+        why_now: "Fresh hot kachoris served continuously.",
+        distance_km: 2.2,
+        duration_min: 40,
+        approx_cost: 120,
+        best_time: "Now",
+        tags: ["food", "streetfood", "local"],
+        scores: { match: 86, crowd: 60, budget: 98, distance: 88, weather: 85, overall: 85 },
+      },
+      {
+        name: "Caffe Palladio Jaipur Courtyard",
+        category: "art",
+        pitch: "Stunning turquoise painted courtyard cafe with Italian snacks and spritzes.",
+        why_now: "Peaceful oasis away from traffic noise.",
+        distance_km: 3.1,
+        duration_min: 60,
+        approx_cost: 600,
+        best_time: "Now",
+        tags: ["art", "courtyard", "cafe"],
+        scores: { match: 84, crowd: 85, budget: 75, distance: 82, weather: 95, overall: 83 },
+      },
+      {
+        name: "Central Park Bamboo Grove Walk",
+        category: "nature",
+        pitch: "Largest green lung of Jaipur with native trees and quiet shaded paths.",
+        why_now: "Shaded green pathways perfect for an evening walk.",
+        distance_km: 1.2,
+        duration_min: 50,
+        approx_cost: 0,
+        best_time: "Now",
+        tags: ["nature", "park", "quiet"],
+        scores: { match: 82, crowd: 80, budget: 100, distance: 95, weather: 90, overall: 82 },
+      },
+    ],
+  },
+  chennai: {
+    headline: "Unwind at Besant Nagar Beach & Promenade",
+    context_note: "Cool evening sea breeze and lively food stalls.",
+    primary: {
+      name: "Besant Nagar Beach & Promenade",
+      category: "nature",
+      pitch: "Coastal promenade with sea breeze, sunset colors, and fresh filter coffee stalls.",
+      why_now: "Cool evening sea breeze near Schmidt Memorial.",
+      distance_km: 2.5,
+      duration_min: 90,
+      approx_cost: 80,
+      best_time: "5:00 PM - 8:00 PM",
+      tags: ["sunset", "beach", "coffee"],
+      scores: { match: 92, crowd: 75, budget: 95, distance: 90, weather: 90, overall: 90 },
+    },
+    alternatives: [
+      {
+        name: "Semmozhi Poonga Botanical Garden",
+        category: "nature",
+        pitch: "Peaceful 20-acre botanical garden tucked away in Cathedral Road.",
+        why_now: "Quiet shaded walkways and lush tropical flora.",
+        distance_km: 3.0,
+        duration_min: 60,
+        approx_cost: 50,
+        best_time: "Now",
+        tags: ["nature", "quiet", "walk"],
+        scores: { match: 88, crowd: 80, budget: 98, distance: 85, weather: 90, overall: 87 },
+      },
+      {
+        name: "Amethyst Cafe & Courtyard",
+        category: "cafe",
+        pitch: "Heritage bungalow turned garden cafe surrounded by tropical foliage.",
+        why_now: "Quiet book corners and artisanal coffee.",
+        distance_km: 3.5,
+        duration_min: 60,
+        approx_cost: 400,
+        best_time: "Now",
+        tags: ["cafe", "heritage", "coffee"],
+        scores: { match: 86, crowd: 85, budget: 80, distance: 80, weather: 95, overall: 85 },
+      },
+      {
+        name: "Mylapore Kapaleeshwarar Tank & Filter Coffee Trail",
+        category: "culture",
+        pitch: "Historic temple tank promenade with Rayar's Mess Tiffin and Filter Coffee.",
+        why_now: "Aromatic filter coffee and hot Ghee Roast dosas.",
+        distance_km: 2.1,
+        duration_min: 50,
+        approx_cost: 100,
+        best_time: "Now",
+        tags: ["culture", "coffee", "temple"],
+        scores: { match: 85, crowd: 70, budget: 95, distance: 88, weather: 88, overall: 84 },
+      },
+      {
+        name: "Broken Bridge Viewpoint at Adyar Estuary",
+        category: "viewpoint",
+        pitch: "Serene estuary viewpoint where Adyar river meets the Bay of Bengal.",
+        why_now: "Peaceful breeze and scenic coastal views.",
+        distance_km: 3.8,
+        duration_min: 45,
+        approx_cost: 0,
+        best_time: "Sunset",
+        tags: ["photo", "viewpoint", "quiet"],
+        scores: { match: 83, crowd: 90, budget: 100, distance: 78, weather: 85, overall: 82 },
+      },
+      {
+        name: "DakshinaChitra Heritage Village",
+        category: "art",
+        pitch: "Living museum featuring 18 reconstructed heritage houses from South India.",
+        why_now: "Traditional artisan workshops and quiet courtyards.",
+        distance_km: 12.0,
+        duration_min: 120,
+        approx_cost: 200,
+        best_time: "Now",
+        tags: ["art", "heritage", "museum"],
+        scores: { match: 80, crowd: 85, budget: 85, distance: 60, weather: 90, overall: 80 },
+      },
+    ],
+  },
+};
+
 const NowInput = z.object({
   city: z.string().min(2).max(80),
   hours_available: z.number().min(0.5).max(12),
@@ -396,48 +555,69 @@ Return STRICT JSON:
     });
 
     const parsed = extractJson<NowResponse>(raw);
-    const primary = parsed?.primary ?? {
-      name: `Explore ${data.city}`,
-      category: "nature",
-      pitch: `Discover the top local sights, parks, and street food in ${data.city}.`,
-      why_now: `Great moment to head out and explore ${data.city}.`,
-      distance_km: 2.0,
-      duration_min: 90,
-      approx_cost: Math.min(data.budget, 200),
-      best_time: "Now",
-      tags: ["sightseeing", "explore"],
-      scores: { match: 90, crowd: 75, budget: 90, distance: 85, weather: 88, overall: 88 },
-    };
+    const cityKey = data.city.toLowerCase().trim();
+    const cityKnowledge = CITY_KNOWLEDGE_NOW[cityKey];
+
+    const primary: NowCard = parsed?.primary?.name
+      ? parsed.primary
+      : cityKnowledge?.primary ?? {
+          name: `Explore ${data.city} City Promenade & Landmarks`,
+          category: "nature",
+          pitch: `Discover the top local sights, heritage spots, and street food in ${data.city}.`,
+          why_now: `Great moment to head out and explore ${data.city}.`,
+          distance_km: 2.0,
+          duration_min: 90,
+          approx_cost: Math.min(data.budget, 250),
+          best_time: "Now",
+          tags: ["sightseeing", "explore"],
+          scores: { match: 90, crowd: 75, budget: 90, distance: 85, weather: 88, overall: 88 },
+        };
+
+    const rawAlts = Array.isArray(parsed?.alternatives) ? parsed.alternatives.filter((c) => c && c.name) : [];
+    const knowledgeAlts = cityKnowledge?.alternatives ?? [];
+
+    // Combine AI alternatives with city knowledge to guarantee at least 5 distinct recommendations
+    const combinedAlts: NowCard[] = [...rawAlts];
+    for (const alt of knowledgeAlts) {
+      if (combinedAlts.length >= 5) break;
+      if (!combinedAlts.some((a) => a.name.toLowerCase().includes(alt.name.toLowerCase()))) {
+        combinedAlts.push(alt);
+      }
+    }
+
+    // Default dynamic place generator for custom cities if fewer than 5 recommendations exist
+    const defaultCategories = [
+      { name: `${data.city} Heritage & Cultural Walk`, category: "culture", pitch: `Explore historical monuments and traditional lanes in ${data.city}.` },
+      { name: `${data.city} Artisanal Cafe & Coffee House`, category: "cafe", pitch: `Relax with specialty coffee and local snacks.` },
+      { name: `${data.city} Scenic Viewpoint & Promenade`, category: "viewpoint", pitch: `Panoramic views and fresh air over ${data.city}.` },
+      { name: `${data.city} Botanical Garden & Nature Trail`, category: "nature", pitch: `Shaded green pathways and quiet natural spots.` },
+      { name: `${data.city} Local Street Food & Market Trail`, category: "food", pitch: `Taste famous regional culinary specialties.` },
+    ];
+
+    for (const gen of defaultCategories) {
+      if (combinedAlts.length >= 5) break;
+      if (!combinedAlts.some((a) => a.name.toLowerCase() === gen.name.toLowerCase())) {
+        combinedAlts.push({
+          name: gen.name,
+          category: gen.category,
+          pitch: gen.pitch,
+          why_now: "Ideal time to visit with great local atmosphere.",
+          distance_km: 2.5,
+          duration_min: 60,
+          approx_cost: 150,
+          best_time: "Now",
+          tags: [gen.category, "local"],
+          scores: { match: 85, crowd: 80, budget: 90, distance: 85, weather: 90, overall: 85 },
+        });
+      }
+    }
 
     return {
-      headline: parsed?.headline || `Discover the best of ${data.city} right now`,
+      headline: parsed?.headline || `Top 5 things to do in ${data.city} right now`,
       context_note:
-        parsed?.context_note || `Tailored for ${data.city} with ${data.hours_available}h free.`,
+        parsed?.context_note || `Tailored recommendations for ${data.city} with ${data.hours_available}h free.`,
       primary,
-      alternatives:
-        Array.isArray(parsed?.alternatives) && parsed.alternatives.length > 0
-          ? parsed.alternatives
-          : [
-              {
-                name: `${data.city} Heritage Cafe`,
-                category: "cafe",
-                pitch: "Relax with local filter coffee and snacks.",
-                why_now: "Quiet ambiance and cozy seating.",
-                distance_km: 1.5,
-                duration_min: 45,
-                approx_cost: 150,
-                best_time: "Now",
-                tags: ["cafe", "coffee"],
-                scores: {
-                  match: 85,
-                  crowd: 80,
-                  budget: 95,
-                  distance: 90,
-                  weather: 95,
-                  overall: 85,
-                },
-              },
-            ],
+      alternatives: combinedAlts.slice(0, 5),
     };
   });
 

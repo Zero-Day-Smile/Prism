@@ -55,7 +55,7 @@ export function isProviderConfigured(name: string): boolean {
 }
 
 const providerFailures: Record<string, { timestamp: number; isFatal: boolean }> = {};
-const FAILED_COOLDOWN_MS = 5 * 60 * 1000; // 5 minute cooldown for failing providers
+const FAILED_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hour cooldown for quota-exhausted providers
 
 function isFatalError(errMessage: string): boolean {
   const lower = errMessage.toLowerCase();
@@ -63,6 +63,7 @@ function isFatalError(errMessage: string): boolean {
     lower.includes("401") ||
     lower.includes("403") ||
     lower.includes("404") ||
+    lower.includes("429") ||
     lower.includes("500") ||
     lower.includes("502") ||
     lower.includes("503") ||
@@ -133,7 +134,7 @@ async function tryProviderWithRetry(
       if (fatal) {
         providerFailures[provider.name] = { timestamp: Date.now(), isFatal: true };
         console.warn(
-          `[AI Router] Provider '${provider.name}' encountered fatal error. Entering cooldown for 5m.`
+          `[AI Router] Provider '${provider.name}' encountered fatal error. Entering cooldown for 24h.`
         );
         break; // Do not retry fatal errors
       }
@@ -149,7 +150,7 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
     `[AI Router] Preferred primary provider: '${primaryProvider}' based on routing rules.`
   );
 
-  // Build candidate order: preferred primary, then Groq (fastest), Gemini, OpenAI
+  // Build candidate order: preferred primary (Groq), then Gemini, then OpenAI (last resort)
   const fallbackOrder = ["groq", "gemini", "openai"];
   const candidateNames = [primaryProvider];
   for (const name of fallbackOrder) {
@@ -158,11 +159,16 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
     }
   }
 
-  // Filter candidates to only those that are configured and healthy (or fallback to any configured)
+  // Filter candidates to only those that are configured and healthy
   let activeCandidates = candidateNames.filter(isProviderHealthy);
   if (activeCandidates.length === 0) {
-    // If all healthy options exhausted, try any configured provider
-    activeCandidates = candidateNames.filter(isProviderConfigured);
+    // If all healthy options exhausted, try groq & gemini first before openai
+    activeCandidates = candidateNames.filter(
+      (name) => name !== "openai" && isProviderConfigured(name)
+    );
+    if (activeCandidates.length === 0) {
+      activeCandidates = candidateNames.filter(isProviderConfigured);
+    }
   }
 
   if (activeCandidates.length === 0) {

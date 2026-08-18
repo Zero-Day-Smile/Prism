@@ -66,6 +66,8 @@ function GemsPage() {
         const ipLoc = await fetchIpLocation();
         if (ipLoc) setCoords({ lat: ipLoc.lat, lng: ipLoc.lng });
       }
+      // Auto-load initial gems for current city
+      load();
     })();
   }, []);
 

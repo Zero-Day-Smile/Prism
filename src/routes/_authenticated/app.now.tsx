@@ -95,6 +95,10 @@ function NowPage() {
         if (p.budget_per_day) setBudget(Math.min(p.budget_per_day, 5000));
       }
       setProfileLoaded(true);
+      // Auto-fetch initial recommendations on page load
+      setTimeout(() => {
+        go();
+      }, 50);
     })();
   }, []);
 
@@ -353,6 +357,15 @@ function PrimaryCard({
   coords: { lat: number; lng: number } | null;
   onSave: () => void;
 }) {
+  const scores = card?.scores ?? {
+    overall: 85,
+    match: 85,
+    crowd: 80,
+    budget: 90,
+    distance: 85,
+    weather: 90,
+  };
+
   return (
     <div className="rounded-2xl border-2 border-primary bg-card p-5 shadow-[var(--shadow-soft)]">
       <div className="flex items-start justify-between gap-3">
@@ -373,7 +386,7 @@ function PrimaryCard({
           style={{ background: "var(--gradient-warm)" }}
         >
           <div className="text-center leading-none">
-            <div className="text-lg font-bold">{card.scores.overall}</div>
+            <div className="text-lg font-bold">{scores.overall}</div>
             <div className="text-[8px] opacity-80">MATCH</div>
           </div>
         </div>
@@ -387,11 +400,11 @@ function PrimaryCard({
       </div>
 
       <div className="mt-4 grid gap-2 md:grid-cols-5">
-        <ScoreBar label="Match" value={card.scores.match} />
-        <ScoreBar label="Crowd" value={card.scores.crowd} />
-        <ScoreBar label="Budget" value={card.scores.budget} />
-        <ScoreBar label="Distance" value={card.scores.distance} />
-        <ScoreBar label="Weather" value={card.scores.weather} />
+        <ScoreBar label="Match" value={scores.match} />
+        <ScoreBar label="Crowd" value={scores.crowd} />
+        <ScoreBar label="Budget" value={scores.budget} />
+        <ScoreBar label="Distance" value={scores.distance} />
+        <ScoreBar label="Weather" value={scores.weather} />
       </div>
 
       <div className="mt-4 flex gap-2">
@@ -420,6 +433,8 @@ function AltCard({
   coords: { lat: number; lng: number } | null;
   onSave: () => void;
 }) {
+  const scores = card?.scores ?? { overall: 75 };
+
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
@@ -454,7 +469,7 @@ function AltCard({
           </div>
         </div>
         <div className="text-right">
-          <div className="text-base font-bold text-primary">{card.scores.overall}</div>
+          <div className="text-base font-bold text-primary">{scores.overall}</div>
           <div className="text-[8px] uppercase text-muted-foreground">match</div>
         </div>
       </div>

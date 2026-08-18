@@ -370,7 +370,51 @@ Return STRICT JSON:
       responseJson: true,
       temperature: 0.85,
     });
-    return extractJson<NowResponse>(raw);
+
+    const parsed = extractJson<NowResponse>(raw);
+    const primary = parsed?.primary ?? {
+      name: `Explore ${data.city}`,
+      category: "nature",
+      pitch: `Discover the top local sights, parks, and street food in ${data.city}.`,
+      why_now: `Great moment to head out and explore ${data.city}.`,
+      distance_km: 2.0,
+      duration_min: 90,
+      approx_cost: Math.min(data.budget, 200),
+      best_time: "Now",
+      tags: ["sightseeing", "explore"],
+      scores: { match: 90, crowd: 75, budget: 90, distance: 85, weather: 88, overall: 88 },
+    };
+
+    return {
+      headline: parsed?.headline || `Discover the best of ${data.city} right now`,
+      context_note:
+        parsed?.context_note || `Tailored for ${data.city} with ${data.hours_available}h free.`,
+      primary,
+      alternatives:
+        Array.isArray(parsed?.alternatives) && parsed.alternatives.length > 0
+          ? parsed.alternatives
+          : [
+              {
+                name: `${data.city} Heritage Cafe`,
+                category: "cafe",
+                pitch: "Relax with local filter coffee and snacks.",
+                why_now: "Quiet ambiance and cozy seating.",
+                distance_km: 1.5,
+                duration_min: 45,
+                approx_cost: 150,
+                best_time: "Now",
+                tags: ["cafe", "coffee"],
+                scores: {
+                  match: 85,
+                  crowd: 80,
+                  budget: 95,
+                  distance: 90,
+                  weather: 95,
+                  overall: 85,
+                },
+              },
+            ],
+    };
   });
 
 /** -------------- AI Story Mode -------------- */

@@ -129,7 +129,7 @@ function StoryPage() {
               {story.title}
             </h1>
             <ol className="space-y-5 border-l-2 border-primary/40 pl-5">
-              {story.chapters.map((c, i) => (
+              {(story?.chapters ?? []).map((c, i) => (
                 <li
                   key={i}
                   className="relative animate-in fade-in slide-in-from-left-2"

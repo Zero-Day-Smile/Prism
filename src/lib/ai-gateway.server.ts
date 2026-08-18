@@ -192,6 +192,39 @@ function repairJsonString(raw: string): string {
 }
 
 function createFallbackObject<T>(raw: string): T {
+  // If prompt is for Story mode
+  if (raw.includes("chapters") || raw.includes("STORY")) {
+    return {
+      title: "A Day of Discovery",
+      chapters: [
+        {
+          time: "8:00 AM",
+          heading: "Morning Serenity",
+          place: "Botanical Promenade",
+          body: "The morning light filters through ancient trees as local vendors set up fresh tea stalls.",
+          cost: 50,
+          tip: "Grab a hot chai and take the quiet shaded pathway.",
+        },
+        {
+          time: "1:00 PM",
+          heading: "Midday Flavors",
+          place: "Heritage Market",
+          body: "Aromatic spices fill the air as traditional cooks serve hot regional lunch specialties.",
+          cost: 200,
+          tip: "Try the signature house special dish.",
+        },
+        {
+          time: "6:00 PM",
+          heading: "Golden Hour Breeze",
+          place: "Sunset Viewpoint",
+          body: "Watch the sky shift to hues of gold and amber as the cool evening breeze sets in.",
+          cost: 0,
+          tip: "Head up 15 minutes before sunset for the best photos.",
+        },
+      ],
+      closing: "As twilight settles, the city comes alive with evening lights and quiet charm.",
+    } as unknown as T;
+  }
   // If prompt is for Now recommendations
   if (raw.includes("primary") || raw.includes("headline") || raw.includes("NEXT")) {
     return {

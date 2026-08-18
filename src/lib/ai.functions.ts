@@ -656,9 +656,9 @@ Return JSON:
       responseJson: true,
       temperature: 0.95,
     });
-    return extractJson<{
-      title: string;
-      chapters: Array<{
+    const parsed = extractJson<{
+      title?: string;
+      chapters?: Array<{
         time: string;
         heading: string;
         place: string;
@@ -666,8 +666,47 @@ Return JSON:
         cost?: number;
         tip?: string;
       }>;
-      closing: string;
+      closing?: string;
     }>(raw);
+
+    const title = parsed?.title || `A Day in ${data.city}`;
+    const chapters =
+      Array.isArray(parsed?.chapters) && parsed.chapters.length > 0
+        ? parsed.chapters
+        : [
+            {
+              time: "8:00 AM",
+              heading: "Morning Serenity",
+              place: `${data.city} Old Town Square`,
+              body: `You step out into ${data.city} as the morning air is crisp and golden light warms the historic stone facades.`,
+              cost: 80,
+              tip: "Visit early before traffic picks up.",
+            },
+            {
+              time: "1:30 PM",
+              heading: "Midday Culinary Trail",
+              place: `${data.city} Famous Food Lane`,
+              body: `The aroma of freshly ground spices draws you into a bustling courtyard cafe for an authentic local lunch.`,
+              cost: 250,
+              tip: "Try the local house special platter.",
+            },
+            {
+              time: "6:00 PM",
+              heading: "Sunset Promenade",
+              place: `${data.city} Scenic Viewpoint`,
+              body: `As dusk approaches, you watch the sunset colors reflect off the city skyline with a warm cup of tea in hand.`,
+              cost: 0,
+              tip: "Great spot for photography.",
+            },
+          ];
+
+    return {
+      title,
+      chapters,
+      closing:
+        parsed?.closing ||
+        `As night falls over ${data.city}, you carry home memories of a day well spent.`,
+    };
   });
 
 /** -------------- Nearby Intelligence -------------- */

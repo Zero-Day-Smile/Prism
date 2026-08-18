@@ -127,23 +127,47 @@ Generate 4-7 stops in realistic geographic order. Ensure all stop names are actu
       temperature: 0.8,
     });
     const plan = extractJson<Itinerary>(raw);
+    const title =
+      plan?.title || `${data.hours}h ${data.vibe} Trip in ${data.city}`;
+    const safePlan = {
+      title,
+      summary: plan?.summary || `A curated ${data.hours}-hour trip in ${data.city}.`,
+      total_cost: typeof plan?.total_cost === "number" ? plan.total_cost : data.budget,
+      stops: Array.isArray(plan?.stops) ? plan.stops : [],
+      packing_tip: plan?.packing_tip || "Carry water and comfortable walking shoes.",
+    };
 
-    // Save trip
-    const { data: trip, error } = await context.supabase
-      .from("trips")
-      .insert({
-        user_id: context.userId,
-        title: plan.title,
-        city: data.city,
-        budget: data.budget,
-        hours: data.hours,
-        vibe: data.vibe,
-        plan: plan as unknown as JsonValue,
-      })
-      .select()
-      .single();
-    if (error) throw new Error(error.message);
-    return trip as unknown as Record<string, JsonValue>;
+    if (context.userId && context.userId !== "anon") {
+      try {
+        const { data: trip } = await context.supabase
+          .from("trips")
+          .insert({
+            user_id: context.userId,
+            title,
+            city: data.city,
+            budget: data.budget,
+            hours: data.hours,
+            vibe: data.vibe,
+            plan: safePlan as unknown as JsonValue,
+          })
+          .select()
+          .maybeSingle();
+
+        if (trip) return trip as unknown as Record<string, JsonValue>;
+      } catch (e) {
+        console.error("Error saving trip to database:", e);
+      }
+    }
+
+    return {
+      id: "temp-" + Date.now(),
+      title,
+      city: data.city,
+      budget: data.budget,
+      hours: data.hours,
+      vibe: data.vibe,
+      plan: safePlan,
+    } as unknown as Record<string, JsonValue>;
   });
 
 /** -------------- Hidden gems -------------- */

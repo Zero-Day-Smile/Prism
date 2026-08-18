@@ -127,6 +127,62 @@ function SettingsPage() {
     savePersona({ companions: next });
   }
 
+  async function exportData() {
+    try {
+      toast.loading("Preparing your PRISM data export...", { id: "export" });
+      const { data: u } = await supabase.auth.getUser();
+      const userId = u?.user?.id;
+
+      let profile = null;
+      let trips: any[] = [];
+      let savedPlaces: any[] = [];
+      let memorySignals: any[] = [];
+
+      if (userId) {
+        const [{ data: p }, { data: t }, { data: sp }, { data: sig }] = await Promise.all([
+          supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+          supabase.from("trips").select("*").eq("user_id", userId),
+          supabase.from("saved_places").select("*").eq("user_id", userId),
+          supabase.from("preference_signals").select("*").eq("user_id", userId),
+        ]);
+        profile = p;
+        trips = t ?? [];
+        savedPlaces = sp ?? [];
+        memorySignals = sig ?? [];
+      }
+
+      const exportPayload = {
+        app: "PRISM Travel AI",
+        exported_at: new Date().toISOString(),
+        user_id: userId ?? "guest",
+        profile: profile ?? {
+          travel_style: travelStyle,
+          interests,
+          companions,
+        },
+        trips,
+        saved_places: savedPlaces,
+        ai_memory_signals: memorySignals,
+      };
+
+      const jsonStr = JSON.stringify(exportPayload, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `prism_travel_export_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success("Downloaded PRISM data JSON file!", { id: "export" });
+    } catch (e) {
+      toast.error("Export failed", { id: "export" });
+    }
+  }
+
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
@@ -382,7 +438,7 @@ function SettingsPage() {
             label="Export my data"
             desc="Download trips, profile & memory (JSON)"
           >
-            <Button variant="outline" size="sm" onClick={() => toast.success("Export queued")}>
+            <Button variant="outline" size="sm" onClick={exportData}>
               Export
             </Button>
           </Row>

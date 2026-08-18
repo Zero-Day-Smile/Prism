@@ -12,6 +12,9 @@ export default defineConfig({
       port: 8089,
       strictPort: true,
     },
+    build: {
+      chunkSizeWarningLimit: 2000,
+    },
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

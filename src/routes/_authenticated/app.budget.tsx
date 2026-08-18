@@ -138,7 +138,7 @@ function BudgetPage() {
               </div>
             </div>
             <div className="space-y-2">
-              {plan.breakdown.map((b, i) => (
+              {(plan?.breakdown ?? []).map((b, i) => (
                 <div
                   key={i}
                   className="rounded-2xl border border-border bg-card p-4 animate-in fade-in"
@@ -164,25 +164,25 @@ function BudgetPage() {
                 </div>
               ))}
             </div>
-            {plan.tips.length > 0 && (
+            {(plan?.tips ?? []).length > 0 && (
               <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
                 <div className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-400">
                   <Lightbulb className="h-3 w-3" /> Money tips
                 </div>
                 <ul className="space-y-1 text-sm">
-                  {plan.tips.map((t, i) => (
+                  {(plan?.tips ?? []).map((t, i) => (
                     <li key={i}>• {t}</li>
                   ))}
                 </ul>
               </div>
             )}
-            {plan.warnings.length > 0 && (
+            {(plan?.warnings ?? []).length > 0 && (
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
                 <div className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
                   <AlertTriangle className="h-3 w-3" /> Heads up
                 </div>
                 <ul className="space-y-1 text-sm">
-                  {plan.warnings.map((t, i) => (
+                  {(plan?.warnings ?? []).map((t, i) => (
                     <li key={i}>• {t}</li>
                   ))}
                 </ul>

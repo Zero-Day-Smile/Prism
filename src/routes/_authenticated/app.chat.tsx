@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, MessageSquare, Sparkles, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
+import { FormattedText } from "@/components/formatted-text";
 
 export const Route = createFileRoute("/_authenticated/app/chat")({
   component: ChatPage,
@@ -166,7 +167,7 @@ function ChatPage() {
                 className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "text-primary-foreground" : "bg-muted text-foreground"}`}
                 style={m.role === "user" ? { background: "var(--gradient-warm)" } : undefined}
               >
-                {m.content}
+                <FormattedText text={m.content} />
               </div>
             </div>
           ))}

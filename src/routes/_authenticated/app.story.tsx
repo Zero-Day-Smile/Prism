@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { generateStory } from "@/lib/ai.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { TravelBackground } from "@/components/travel-background";
+import { FormattedText } from "@/components/formatted-text";
 
 export const Route = createFileRoute("/_authenticated/app/story")({ component: StoryPage });
 
@@ -145,7 +146,9 @@ function StoryPage() {
                     {c.time} · {c.place}
                   </div>
                   <h3 className="mt-0.5 text-lg font-semibold">{c.heading}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-foreground/90">{c.body}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground/90">
+                    <FormattedText text={c.body} />
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {typeof c.cost === "number" && (
                       <span className="flex items-center gap-1">
@@ -153,13 +156,13 @@ function StoryPage() {
                         {c.cost}
                       </span>
                     )}
-                    {c.tip && <span className="italic">💡 {c.tip}</span>}
+                    {c.tip && <span className="italic">💡 <FormattedText text={c.tip} /></span>}
                   </div>
                 </li>
               ))}
             </ol>
-            <p className="border-t border-border pt-4 text-sm italic text-muted-foreground">
-              {story.closing}
+            <p className="border-t border-border pt-4 text-sm text-muted-foreground">
+              <FormattedText text={story.closing} />
             </p>
           </article>
         )}

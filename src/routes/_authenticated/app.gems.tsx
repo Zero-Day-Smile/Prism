@@ -80,7 +80,7 @@ function GemsPage() {
         .eq("id", u.user!.id)
         .maybeSingle();
       const res = await fn({ data: { city, interests: profile?.interests ?? [], count: 8 } });
-      setGems(res.gems);
+      setGems(res?.gems ?? []);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {

@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { generateDiscoveryFeed } from "@/lib/ai.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { directionsUrl, photoUrl, openExternal, fetchIpLocation } from "@/lib/place-utils";
+import { FormattedText } from "@/components/formatted-text";
 
 export const Route = createFileRoute("/_authenticated/app/discover")({
   component: DiscoverPage,
@@ -124,8 +125,9 @@ function DiscoverPage() {
     })();
   }, []);
 
-  function rank(cards: Card[]): Card[] {
-    const scored = cards.map((c) => {
+  function rank(cards: Card[] = []): Card[] {
+    const list = Array.isArray(cards) ? cards : [];
+    const scored = list.map((c) => {
       // Crowd prediction: higher popularity => more crowded => lower peace score
       const crowd = Math.max(0, Math.min(100, 100 - (c.popularity_score ?? 50)));
       // Match: learned tag weights sum + category weight
@@ -154,7 +156,7 @@ function DiscoverPage() {
         .eq("id", u.user!.id)
         .maybeSingle();
       const res = await fn({ data: { city, interests: profile?.interests ?? [] } });
-      const ranked = rank(res.cards as Card[]);
+      const ranked = rank((res?.cards ?? []) as Card[]);
       setCards(ranked);
       setIdx(0);
       // Enrich in background — images populate as they arrive.
@@ -386,7 +388,9 @@ function DiscoverPage() {
                   <MapPin className="h-3 w-3" />
                   {current.city ?? city}
                 </div>
-                <p className="mt-3 text-sm opacity-95">{current.description}</p>
+                <p className="mt-3 text-sm opacity-95">
+                  <FormattedText text={current.description} />
+                </p>
 
                 {showInfo && current._extract && (
                   <div className="mt-3 max-h-32 overflow-y-auto rounded-lg bg-black/40 p-3 text-xs leading-relaxed backdrop-blur">

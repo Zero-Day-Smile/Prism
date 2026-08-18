@@ -11,7 +11,11 @@ export class GroqProvider implements AIProvider {
     }
 
     const modelName =
-      request.model && !request.model.includes("gemini") ? request.model : "llama-3.1-8b-instant";
+      request.model &&
+      !request.model.includes("gemini") &&
+      !request.model.includes("llama")
+        ? request.model
+        : "openai/gpt-oss-20b";
 
     const body: {
       model: string;
@@ -33,7 +37,7 @@ export class GroqProvider implements AIProvider {
       body.response_format = { type: "json_object" };
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,6 +45,19 @@ export class GroqProvider implements AIProvider {
       },
       body: JSON.stringify(body),
     });
+
+    // If Groq strict JSON validation fails (400 code), retry without strict response_format
+    if (!response.ok && body.response_format) {
+      delete body.response_format;
+      response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(body),
+      });
+    }
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");

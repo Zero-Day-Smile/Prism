@@ -54,31 +54,45 @@ export function isProviderConfigured(name: string): boolean {
   return !!getApiKey(name);
 }
 
+const providerFailures: Record<string, { timestamp: number; isFatal: boolean }> = {};
+const FAILED_COOLDOWN_MS = 5 * 60 * 1000; // 5 minute cooldown for failing providers
+
+function isFatalError(errMessage: string): boolean {
+  const lower = errMessage.toLowerCase();
+  return (
+    lower.includes("401") ||
+    lower.includes("403") ||
+    lower.includes("404") ||
+    lower.includes("500") ||
+    lower.includes("502") ||
+    lower.includes("503") ||
+    lower.includes("504") ||
+    lower.includes("quota") ||
+    lower.includes("unavailable") ||
+    lower.includes("high demand") ||
+    lower.includes("overloaded") ||
+    lower.includes("invalid_api_key") ||
+    lower.includes("insufficient_quota") ||
+    lower.includes("model_not_found")
+  );
+}
+
+function isProviderHealthy(name: string): boolean {
+  if (!isProviderConfigured(name)) return false;
+  const failure = providerFailures[name];
+  if (!failure) return true;
+  // If cooldown passed, re-test
+  if (Date.now() - failure.timestamp > FAILED_COOLDOWN_MS) {
+    delete providerFailures[name];
+    return true;
+  }
+  // Skip if within cooldown
+  return false;
+}
+
 export function determineProvider(request: AIRequest): string {
-  const systemMessage = request.messages.find((m) => m.role === "system")?.content || "";
-  const userMessage = request.messages.find((m) => m.role === "user")?.content || "";
-  const allText = (systemMessage + " " + userMessage).toLowerCase();
-
-  // Long-form writing -> OpenAI
-  if (
-    allText.includes("story") ||
-    allText.includes("cinematic") ||
-    allText.includes("day-in-the-life")
-  ) {
-    return "openai";
-  }
-
-  // Quick responses -> Groq
-  if (
-    allText.includes("nearby essentials") ||
-    allText.includes("nearbyintel") ||
-    allText.includes("open_now_guess")
-  ) {
-    return "groq";
-  }
-
-  // Default travel planning, itineraries, summaries -> Gemini
-  return "gemini";
+  // Always prefer Groq as it is active, fast, and healthy
+  return "groq";
 }
 
 async function tryProviderWithRetry(
@@ -105,6 +119,8 @@ async function tryProviderWithRetry(
       console.log(
         `[AI Router] Provider '${provider.name}' succeeded in ${duration}ms.`
       );
+      // Clear failure record on success
+      delete providerFailures[provider.name];
       return response;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
@@ -112,10 +128,19 @@ async function tryProviderWithRetry(
       console.error(
         `[AI Router] Provider '${provider.name}' failed on attempt ${attempt}/${MAX_RETRIES + 1}: ${err.message}`
       );
+
+      const fatal = isFatalError(err.message);
+      if (fatal) {
+        providerFailures[provider.name] = { timestamp: Date.now(), isFatal: true };
+        console.warn(
+          `[AI Router] Provider '${provider.name}' encountered fatal error. Entering cooldown for 5m.`
+        );
+        break; // Do not retry fatal errors
+      }
     }
   }
 
-  throw lastError || new Error(`Provider '${provider.name}' failed after all retries`);
+  throw lastError || new Error(`Provider '${provider.name}' failed after retries`);
 }
 
 export async function routeRequest(request: AIRequest): Promise<AIResponse> {
@@ -124,8 +149,8 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
     `[AI Router] Preferred primary provider: '${primaryProvider}' based on routing rules.`
   );
 
-  // Build candidate order starting with preferred primary provider
-  const fallbackOrder = ["gemini", "openai", "groq"];
+  // Build candidate order: preferred primary, then Groq (fastest), Gemini, OpenAI
+  const fallbackOrder = ["groq", "gemini", "openai"];
   const candidateNames = [primaryProvider];
   for (const name of fallbackOrder) {
     if (!candidateNames.includes(name)) {
@@ -133,11 +158,14 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
     }
   }
 
-  // Filter candidates to only those that are configured with an API key
-  const configuredCandidates = candidateNames.filter(isProviderConfigured);
+  // Filter candidates to only those that are configured and healthy (or fallback to any configured)
+  let activeCandidates = candidateNames.filter(isProviderHealthy);
+  if (activeCandidates.length === 0) {
+    // If all healthy options exhausted, try any configured provider
+    activeCandidates = candidateNames.filter(isProviderConfigured);
+  }
 
-  if (configuredCandidates.length === 0) {
-    // Generate list of available environment keys for debugging
+  if (activeCandidates.length === 0) {
     const filterFn = (k: string) =>
       k.includes("KEY") || k.includes("API") || k.includes("URL") || k.includes("SUPABASE") || k.includes("GEMINI") || k.includes("OPENAI") || k.includes("GROQ");
 
@@ -165,11 +193,11 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
   }
 
   console.log(
-    `[AI Router] Configured providers in fallback order: ${configuredCandidates.join(" -> ")}`
+    `[AI Router] Active candidate providers: ${activeCandidates.join(" -> ")}`
   );
 
   let lastError: Error | null = null;
-  for (const name of configuredCandidates) {
+  for (const name of activeCandidates) {
     const provider = providers[name];
     if (!provider) {
       continue;
@@ -182,11 +210,11 @@ export async function routeRequest(request: AIRequest): Promise<AIResponse> {
       const err = error instanceof Error ? error : new Error(String(error));
       lastError = err;
       console.error(
-        `[AI Router] Provider '${name}' failed. Falling back to next configured provider if available.`
+        `[AI Router] Provider '${name}' failed. Falling back to next candidate.`
       );
     }
   }
 
-  console.error(`[AI Router] All configured providers failed. Last error: ${lastError?.message || lastError}`);
-  throw new Error(`AI service unavailable: ${lastError?.message || "All configured providers failed"}`);
+  console.error(`[AI Router] All candidate providers failed. Last error: ${lastError?.message || lastError}`);
+  throw new Error(`AI service unavailable: ${lastError?.message || "All candidate providers failed"}`);
 }

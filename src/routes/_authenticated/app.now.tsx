@@ -22,6 +22,7 @@ import {
   Navigation2,
 } from "lucide-react";
 import { directionsUrl, openExternal, fetchIpLocation } from "@/lib/place-utils";
+import { FormattedText } from "@/components/formatted-text";
 
 export const Route = createFileRoute("/_authenticated/app/now")({
   component: NowPage,
@@ -297,7 +298,9 @@ function NowPage() {
             >
               <p className="text-[11px] uppercase tracking-wider opacity-80">Your next move</p>
               <h3 className="mt-1 text-2xl font-bold leading-tight">{result.headline}</h3>
-              <p className="mt-2 text-sm opacity-90">{result.context_note}</p>
+              <p className="mt-2 text-sm opacity-90">
+                <FormattedText text={result.context_note} />
+              </p>
             </div>
 
             <PrimaryCard
@@ -362,8 +365,8 @@ function PrimaryCard({
               </Badge>
             )}
           </div>
-          <p className="mt-1 text-sm">{card.pitch}</p>
-          <p className="mt-2 text-xs italic text-muted-foreground">⏱ {card.why_now}</p>
+          <p className="mt-1 text-sm"><FormattedText text={card.pitch} /></p>
+          <p className="mt-2 text-xs italic text-muted-foreground">⏱ <FormattedText text={card.why_now} /></p>
         </div>
         <div
           className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-primary-foreground"

@@ -167,7 +167,7 @@ function PlanPage() {
             </div>
 
             <ol className="mt-5 space-y-3">
-              {plan.stops.map((s, i) => (
+              {(plan?.stops ?? []).map((s, i) => (
                 <li key={i} className="relative rounded-xl border border-border bg-background p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">

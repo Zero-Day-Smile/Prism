@@ -10,8 +10,8 @@ export class GeminiProvider implements AIProvider {
       throw new Error("Missing GEMINI_API_KEY");
     }
 
-    // Default to gemini-2.5-flash (stable)
-    let modelName = "gemini-2.5-flash";
+    // Default to gemini-3.6-flash (current stable)
+    let modelName = "gemini-3.6-flash";
 
     if (request.model) {
       // Handle prefixes like "google/gemini-3-flash-preview"

@@ -81,24 +81,30 @@ function NowPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) return;
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .maybeSingle();
-      if (p) {
-        setCity(p.current_city ?? "");
-        setInterests(p.interests ?? []);
-        setVibe(p.travel_style ?? "Adventure");
-        if (p.budget_per_day) setBudget(Math.min(p.budget_per_day, 5000));
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) {
+          const { data: p } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", data.user.id)
+            .maybeSingle();
+          if (p) {
+            setCity(p.current_city || "Chennai");
+            setInterests(p.interests ?? []);
+            setVibe(p.travel_style ?? "Adventure");
+            if (p.budget_per_day) setBudget(Math.min(p.budget_per_day, 5000));
+          } else {
+            setCity("Chennai");
+          }
+        } else {
+          setCity("Chennai");
+        }
+      } catch {
+        setCity("Chennai");
+      } finally {
+        setProfileLoaded(true);
       }
-      setProfileLoaded(true);
-      // Auto-fetch initial recommendations on page load
-      setTimeout(() => {
-        go();
-      }, 50);
     })();
   }, []);
 
@@ -357,6 +363,8 @@ function PrimaryCard({
   coords: { lat: number; lng: number } | null;
   onSave: () => void;
 }) {
+  if (!card) return null;
+
   const scores = card?.scores ?? {
     overall: 85,
     match: 85,
@@ -433,6 +441,8 @@ function AltCard({
   coords: { lat: number; lng: number } | null;
   onSave: () => void;
 }) {
+  if (!card) return null;
+
   const scores = card?.scores ?? { overall: 75 };
 
   return (

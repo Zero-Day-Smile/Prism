@@ -53,11 +53,10 @@ function StoryPage() {
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("interests")
-        .eq("id", u.user!.id)
-        .maybeSingle();
+      const userId = u?.user?.id;
+      const { data: p } = userId
+        ? await supabase.from("profiles").select("interests").eq("id", userId).maybeSingle()
+        : { data: null };
       const res = await fn({ data: { city, hours, vibe, interests: p?.interests ?? [] } });
       setStory(res);
     } catch (e) {

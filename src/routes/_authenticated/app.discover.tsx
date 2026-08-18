@@ -91,11 +91,11 @@ function DiscoverPage() {
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
+      if (!u?.user) return;
       const { data } = await supabase
         .from("profiles")
         .select("current_city")
-        .eq("id", u.user!.id)
+        .eq("id", u.user.id)
         .maybeSingle();
       if (data?.current_city) setCity(data.current_city);
       if ("geolocation" in navigator) {
@@ -150,11 +150,10 @@ function DiscoverPage() {
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("interests")
-        .eq("id", u.user!.id)
-        .maybeSingle();
+      const userId = u?.user?.id;
+      const { data: profile } = userId
+        ? await supabase.from("profiles").select("interests").eq("id", userId).maybeSingle()
+        : { data: null };
       const res = await fn({ data: { city, interests: profile?.interests ?? [] } });
       const ranked = rank((res?.cards ?? []) as Card[]);
       setCards(ranked);
@@ -185,8 +184,9 @@ function DiscoverPage() {
 
   async function save(c: Card) {
     const { data: u } = await supabase.auth.getUser();
+    if (!u?.user) return toast.error("Please sign in first");
     const { error } = await supabase.from("saved_places").insert({
-      user_id: u.user!.id,
+      user_id: u.user.id,
       name: c.name,
       city: c.city ?? city,
       category: c.category ?? null,
@@ -207,13 +207,13 @@ function DiscoverPage() {
 
   async function recordSignals(c: Card, signal: 1 | -1) {
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
+    if (!u?.user) return;
     const tags = new Set<string>();
     if (c.category) tags.add(c.category.toLowerCase());
     (c.tags ?? []).forEach((t) => tags.add(String(t).toLowerCase()));
     if (tags.size === 0) return;
     const rows = [...tags].map((tag) => ({
-      user_id: u.user!.id,
+      user_id: u.user.id,
       tag,
       signal,
       source: "discover",

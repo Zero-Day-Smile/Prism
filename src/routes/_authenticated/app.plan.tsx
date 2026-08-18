@@ -64,11 +64,10 @@ function PlanPage() {
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("interests")
-        .eq("id", u.user!.id)
-        .maybeSingle();
+      const userId = u?.user?.id;
+      const { data: profile } = userId
+        ? await supabase.from("profiles").select("interests").eq("id", userId).maybeSingle()
+        : { data: null };
       const trip = await fn({
         data: {
           city,

@@ -47,12 +47,15 @@ function GemsPage() {
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase
-        .from("profiles")
-        .select("current_city")
-        .eq("id", u.user!.id)
-        .maybeSingle();
-      if (data?.current_city) setCity(data.current_city);
+      const userId = u?.user?.id;
+      if (userId) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("current_city")
+          .eq("id", userId)
+          .maybeSingle();
+        if (data?.current_city) setCity(data.current_city);
+      }
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (p) => setCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
@@ -76,11 +79,10 @@ function GemsPage() {
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("interests")
-        .eq("id", u.user!.id)
-        .maybeSingle();
+      const userId = u?.user?.id;
+      const { data: profile } = userId
+        ? await supabase.from("profiles").select("interests").eq("id", userId).maybeSingle()
+        : { data: null };
       const res = await fn({ data: { city, interests: profile?.interests ?? [], count: 8 } });
       setGems(res?.gems ?? []);
     } catch (e) {
@@ -92,8 +94,9 @@ function GemsPage() {
 
   async function save(g: Gem) {
     const { data: u } = await supabase.auth.getUser();
+    if (!u?.user) return toast.error("Please sign in first");
     const { error } = await supabase.from("saved_places").insert({
-      user_id: u.user!.id,
+      user_id: u.user.id,
       name: g.name,
       city,
       category: g.category ?? null,

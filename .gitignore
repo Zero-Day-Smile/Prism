@@ -17,11 +17,13 @@ dist-ssr
 .tanstack/**
 .nitro
 
-# Environment variables
+# Environment variables & local history
 .env
 .env.*
 !.env.example
 *.local
+.history/
+.history
 
 # Wrangler / Cloudflare
 .wrangler/
